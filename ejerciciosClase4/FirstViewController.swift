@@ -9,16 +9,20 @@ import UIKit
 
 class FirstViewController: UIViewController {
     
+    enum EstadoFormulario {
+        case correoValido, contraseñaValida, confirmacionContraseñaValida, correoVacio, contraseñaVacia, confirmarContraseñaNoCoinside, confirmarContraseñaVacio, correoYaEstaRegistrado
+    }
+    
     struct Constant {
-        static let existingEmail = "test@test.com"
-        static let textExistingUser = "Correo Ya Existe"
-        static let successfulRegistration = "Usuario Registrado Correctamente"
-        static let failedPasswordValidation = "Contraseñas No Coinsiden"
-        static let fillOutMail = "Diligenciar Correo"
-        static let fillInPassword = "Diligenciar Contraseña"
-        static let fillInPasswordConfirmation = "Diligenciar Confirmacion Contraseña"
-        static let passwordAndConfirmationNotFilled = "Diligenciar Contraseña Y Confirmacion De Contraseña"
-        static let fillInAllFields = "Diligenciar Campos De Color Rojo"
+        static let correoResgistrado = "test@test.com"
+        static let correoYaExiste = "Correo Ya Existe"
+        static let usuaruioRegistradoCorrectamente = "Usuario Registrado Correctamente"
+        static let contraseñasNoCoinsiden = "Contraseñas No Coinsiden"
+        static let diligenciarCorreo = "Diligenciar Correo"
+        static let diligenciarContraseña = "Diligenciar Contraseña"
+        static let diligenciarConfirmacionContraseña = "Diligenciar Confirmacion Contraseña"
+        static let diligenciarCorreoYContraseña = "Diligenciar Correo y Contraseña"
+        static let diligenciarCamposDeColorRojo = "Diligenciar Campos De Color Rojo"
     }
     
     @IBOutlet weak var correoTextField: UITextField!
@@ -27,72 +31,118 @@ class FirstViewController: UIViewController {
     @IBOutlet weak var resultadoLabel: UILabel!
     @IBOutlet weak var outletButtonCrear: UIButton!
     
+    var correo: String?
+    var contraseña: String!
+    var confirmacionContraseña: String!
+    var mensajeDeResultado: String!
+    
+    var resultadosDeValidacion: [EstadoFormulario] = []
+    
+    
     @IBAction func crearButtonAction(_ sender: UIButton) {
-        validationEmailField()
-        validationPasswordField()
-        validationPasswordConfirmationFielt()
-        validationOfPasswords()
-        validationMailExisting()
-        labelFieldvalidation()
+        limpiarResultadosDeValidacion()
+        extraerDatos()
+        validacioCorreoContraseñaYConfirmacionContraseña()
+        procesarResultadosValidacion()
     }
     
-    func validationEmailField () {
-        let emailTextEmpty = correoTextField.text == ""
-        if emailTextEmpty {
-            correoTextField.backgroundColor = .red
-        }else {
-            correoTextField.backgroundColor = .systemBackground
+    func validacioCorreoContraseñaYConfirmacionContraseña(){
+        validarCorreo()
+        validarContraseña()
+        validarConfirmacionContraseña()
+    }
+    
+    func limpiarResultadosDeValidacion() {
+        resultadosDeValidacion = []
+    }
+    
+    func extraerDatos() {
+        correo = correoTextField.text ?? ""
+        contraseña = contraseñaTextField.text ?? ""
+        confirmacionContraseña = confirmContraseñaTextField.text ?? ""
+    }
+    
+    func validarCorreo() {
+        if let correoSeguro = correo {
+            if correoSeguro.isEmpty {
+                resultadosDeValidacion.append(.correoVacio)
+            } else if correo == Constant.correoResgistrado {
+                resultadosDeValidacion.append(.correoYaEstaRegistrado)
+            } else {
+                resultadosDeValidacion.append(.correoValido)
+            }
         }
     }
     
-    func validationPasswordField () {
-        let passwordTextEmpty = contraseñaTextField.text == ""
-        if passwordTextEmpty {
-            contraseñaTextField.backgroundColor = .red
-        }else {
-            contraseñaTextField.backgroundColor = .systemBackground
+    func validarContraseña() {
+        resultadosDeValidacion.append(contraseña.isEmpty ? .contraseñaVacia : .contraseñaValida)
+    }
+    
+    func validarConfirmacionContraseña() {
+        if confirmacionContraseña.isEmpty {
+            resultadosDeValidacion.append(.confirmarContraseñaVacio)
+        } else if confirmacionContraseña != contraseña {
+            resultadosDeValidacion.append(.confirmarContraseñaNoCoinside)
+        } else {
+            resultadosDeValidacion.append(.confirmacionContraseñaValida)
         }
     }
     
-    func validationPasswordConfirmationFielt () {
-        let passwordConfirmationTextEmpty = confirmContraseñaTextField.text == ""
-        if passwordConfirmationTextEmpty {
-            confirmContraseñaTextField.backgroundColor = .red
-        }else {
-            confirmContraseñaTextField.backgroundColor = .systemBackground
+    func procesarResultadosValidacion() {
+        determinarColoresCamposDeFormulario()
+        definirMensajeDeResultado()
+        pintarResultadoEnPantalla()
+    }
+    
+    func determinarColoresCamposDeFormulario() {
+        determinarColorCampoDeCorreo()
+        determinarColorCampoDeContraseña()
+        determinarColorCampoDeConfirmacionContraseña()
+    }
+    
+    func determinarColorCampoDeCorreo() {
+        correoTextField.backgroundColor = resultadosDeValidacion.contains(.correoValido) ? .systemBackground : .red
+    }
+    
+    func determinarColorCampoDeContraseña() {
+        contraseñaTextField.backgroundColor = resultadosDeValidacion.contains(.contraseñaValida) ? .systemBackground : .red
+    }
+    
+    func determinarColorCampoDeConfirmacionContraseña() {
+        confirmContraseñaTextField.backgroundColor = resultadosDeValidacion.contains(.confirmacionContraseñaValida) ? .systemBackground : .red
+    }
+    
+    func definirMensajeDeResultado() {
+        if resultadosDeValidacion.contains([.correoValido, .contraseñaValida, .confirmacionContraseñaValida]) {
+            mensajeDeResultado = Constant.usuaruioRegistradoCorrectamente
+        } else if resultadosDeValidacion.contains([.correoValido, .contraseñaValida, .confirmarContraseñaNoCoinside]) {
+            mensajeDeResultado = Constant.contraseñasNoCoinsiden
+        } else if resultadosDeValidacion.contains([.correoVacio, .contraseñaValida, .confirmacionContraseñaValida]) {
+            mensajeDeResultado = Constant.diligenciarCorreo
+        } else if resultadosDeValidacion.contains([.correoValido, .contraseñaVacia, .confirmarContraseñaVacio]) {
+            mensajeDeResultado = Constant.diligenciarContraseña
+        } else if resultadosDeValidacion.contains([.correoValido, .contraseñaValida, .confirmarContraseñaVacio]) {
+            mensajeDeResultado = Constant.diligenciarConfirmacionContraseña
+        } else if resultadosDeValidacion.contains([.confirmacionContraseñaValida, .correoVacio, .contraseñaVacia]) {
+            mensajeDeResultado = Constant.diligenciarCorreoYContraseña
+        } else if resultadosDeValidacion.contains([.correoYaEstaRegistrado, .confirmacionContraseñaValida, .contraseñaValida]) {
+            mensajeDeResultado = Constant.correoYaExiste
+        } else if resultadosDeValidacion.contains([.correoYaEstaRegistrado, .contraseñaVacia, .confirmarContraseñaVacio]) {
+            mensajeDeResultado = Constant.correoYaExiste
+        } else if resultadosDeValidacion.contains([.correoValido, .contraseñaVacia, .contraseñaVacia]) {
+            mensajeDeResultado = Constant.diligenciarContraseña
+        } else if resultadosDeValidacion.contains([.correoVacio, .contraseñaVacia, .confirmacionContraseñaValida]) {
+            mensajeDeResultado = Constant.diligenciarCorreoYContraseña
+        } else if resultadosDeValidacion.contains([.correoVacio, .contraseñaVacia, .confirmarContraseñaVacio]) {
+            mensajeDeResultado = Constant.diligenciarCamposDeColorRojo
+        } else {
+            mensajeDeResultado = Constant.diligenciarCamposDeColorRojo
         }
     }
     
-    func validationOfPasswords () {
-        let password = contraseñaTextField.text ?? ""
-        let passwordConfirmation = confirmContraseñaTextField.text ?? ""
-        
-        if password == "" && passwordConfirmation == "" {
-            resultadoLabel.text = Constant.passwordAndConfirmationNotFilled
-        }else if password == passwordConfirmation {
-            resultadoLabel.text = Constant.successfulRegistration
-        }else {
-            resultadoLabel.text = Constant.failedPasswordValidation
-        }
+    func pintarResultadoEnPantalla() {
+        resultadoLabel.text = mensajeDeResultado
     }
     
-    func validationMailExisting () {
-        let email = correoTextField.text ?? ""
-        if email == Constant.existingEmail {
-            resultadoLabel.text = Constant.textExistingUser
-        }
-    }
-    
-    func labelFieldvalidation () {
-        if correoTextField.text == "" && contraseñaTextField.text == "" && confirmContraseñaTextField.text == ""{
-            resultadoLabel.text = Constant.fillInAllFields
-        }else if correoTextField.text == "" {
-            resultadoLabel.text = Constant.fillOutMail
-        }else if contraseñaTextField.text == "" {
-            resultadoLabel.text = Constant.fillInPassword
-        }else if confirmContraseñaTextField.text == "" {
-            resultadoLabel.text = Constant.fillInPasswordConfirmation
-        }
-    }
 }
 

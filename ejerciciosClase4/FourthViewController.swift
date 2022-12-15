@@ -13,22 +13,26 @@ class FourthViewController: UIViewController {
     @IBOutlet weak var animalsImage: UIImageView!
     @IBOutlet weak var searchAnimalOutlet: UIButton!
     
-    var animalsName = ["perro", "gato", "leon"]
+    let imagenNoEncontrada = UIImage(named: "imageNoEncontrado")!
+    
+    var nombreAnimal: String?
+    var imagenAnimal: UIImage?
     
     @IBAction func searchAnimalAction(_ sender: UIButton) {
-        validateImageName()
+        extraerDatos()
+        buscarImagenAnimal()
+        pintarImagenAnimal()
     }
     
-    func validateImageName () {
-        let expectedName = animalsTextField.text
-        if expectedName == animalsName [0] {
-            animalsImage.image = UIImage(named: "imagePerro")
-        }else if expectedName == animalsName [1] {
-            animalsImage.image = UIImage(named: "imageGato")
-        }else if expectedName == animalsName [2] {
-            animalsImage.image = UIImage(named: "imageLeon")
-        }else {
-            animalsImage.image = UIImage(named: "imageNoEncontrado")
-        }
+    func extraerDatos() {
+        nombreAnimal = animalsTextField.text ?? ""
+    }
+    
+    func buscarImagenAnimal() {
+        imagenAnimal = UIImage(named: nombreAnimal!) ?? imagenNoEncontrada
+    }
+    
+    func pintarImagenAnimal() {
+        animalsImage.image = imagenAnimal
     }
 }

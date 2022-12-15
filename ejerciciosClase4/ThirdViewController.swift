@@ -14,31 +14,46 @@ class ThirdViewController: UIViewController {
     @IBOutlet weak var labelResultFahrenheit: UILabel!
     @IBOutlet weak var labelResultCelcius: UILabel!
     
-    lazy var convertirCelcius = Double(textFieldCelciusAFahrenheit.text ?? "")
-    lazy var convertirFahrenheit = Double(textFieldFahrenheitACelcius.text ?? "")
+    struct Constant{
+        static let enterValueToCalculate = "ingrese valor"
+        static let characterDegreesFahrenheit = "\u{2109}"
+        static let characterDegreesCelsius = "\u{2103}"
+    }
+    
+    var resultadoFahrenheit: String?
+    var resultadoCelcius: String?
     
     @IBAction func convetirAFahrenheitAction(_ sender: UIButton) {
-        dataConvertingToFahrenheit()
-        presentConvertingToFahrenheit()
+        convertCelsiusToFahrenheit()
+        pintarResultadosFahrenheit()
     }
+    
     @IBAction func convertirACelciusAction(_ sender: UIButton) {
-        dataConvertingToCelcius()
-        presentConvertingToCelcius()
+        convertFahrenheitToCelsius()
+        pintarResultadosCelcius()
     }
     
-    func dataConvertingToFahrenheit () {
-        convertirCelcius = (convertirCelcius! * 9 ) / 5 + 32
+    func pintarResultadosFahrenheit() {
+        labelResultFahrenheit.text = resultadoFahrenheit
     }
     
-    func presentConvertingToFahrenheit () {
-        labelResultFahrenheit.text = "\(convertirCelcius!)"
+    func pintarResultadosCelcius() {
+        labelResultCelcius.text = resultadoCelcius
     }
     
-    func dataConvertingToCelcius () {
-        convertirFahrenheit = (convertirFahrenheit! - 32 ) * 5 / 9
+    func convertCelsiusToFahrenheit() {
+        if let celciusTemperature = Double(textFieldCelciusAFahrenheit.text!){
+            resultadoFahrenheit = "\((celciusTemperature * 9) / 5 + 32) \(Constant.characterDegreesFahrenheit)"
+        } else {
+            resultadoFahrenheit = Constant.enterValueToCalculate
+        }
     }
     
-    func presentConvertingToCelcius () {
-        labelResultCelcius.text = "\(convertirFahrenheit!)"
+    func convertFahrenheitToCelsius() {
+        if let fahrenheitTemperature = Double(textFieldFahrenheitACelcius.text!){
+            resultadoCelcius = "\((fahrenheitTemperature - 32 ) * 5 / 9) \(Constant.characterDegreesCelsius)"
+        } else {
+            resultadoCelcius = Constant.enterValueToCalculate
+        }
     }
 }

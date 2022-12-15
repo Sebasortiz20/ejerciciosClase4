@@ -12,18 +12,27 @@ class SecondViewController: UIViewController {
     @IBOutlet weak var textLabel: UITextField!
     @IBOutlet weak var labelResultado: UILabel!
     
-    lazy var convertir = Double(textLabel.text ?? "")
+    struct Constant{
+        static let enterValueToCalculate = "ingrese valor"
+        static let characterDegreesFahrenheit = "\u{2109}"
+    }
+    
+    var resultado: String?
     
     @IBAction func convertirCelciusAFahrenheit(_ sender: UIButton) {
-        dataConverting()
-        presentConverting()
+        convertFahrenheitToCelsius()
+        pintarResultado()
     }
     
-    func dataConverting () {
-        convertir = (convertir! * 9 ) / 5 + 32
+    func pintarResultado() {
+        labelResultado.text = resultado
     }
     
-    func presentConverting () {
-        labelResultado.text = "\(convertir!)"
+    func convertFahrenheitToCelsius() {
+        if let fahrenheitTemperature = Double(textLabel.text!) {
+            resultado = "\((fahrenheitTemperature - 32 ) * 5 / 9) \(Constant.characterDegreesFahrenheit)"
+        } else {
+            resultado = Constant.enterValueToCalculate
+        }
     }
 }
